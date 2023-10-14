@@ -12,7 +12,7 @@ Yudhistira akan digunakan sebagai DNS Master, Werkudara sebagai DNS Slave, Arjun
 
 ### Topologi 1
 
-(gambar)
+![soal1-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/a23c091f-0c96-4398-98b3-e994c06c106c)
 
 ### Konfigurasi Node
 Konfigurasi sesuai modul GNS. Menggunakan IP Prefix 10.13 -> IP Kelompok B09.
@@ -125,7 +125,7 @@ echo nameserver 192.168.122.1 > /etc/resolv.conf
 ### Pembuktian
 `ping google.com` pada node lain
 
-(gambar)
+![soal1-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/b90467f9-64e8-4f13-85be-41fba492b2e4)
 
 ## Soal No.2
 Buatlah website utama pada node arjuna dengan akses ke arjuna.yyy.com dengan alias www.arjuna.yyy.com dengan yyy merupakan kode kelompok.
@@ -174,7 +174,8 @@ ping arjuna.b09.com -c 5
 ### Pembuktian
 `ping ajuna.b09.com -c 5` pada nakula dan sadewa
 
-(gambar)
+![soal2-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/95def53f-e584-4368-8b91-06e354f3e881)
+![soal2-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/15bbf71e-2d65-4589-9b16-08cdf8004f29)
 
 ## Soal No.3
 Dengan cara yang sama seperti soal nomor 2, buatlah website utama dengan akses ke abimanyu.yyy.com dan alias www.abimanyu.yyy.com.
@@ -207,7 +208,8 @@ service bind9 restart
 ### Pembuktian pada Client (Nakula dan Sadewa)
 `ping  abimanyu.b09.com -c 5` pada nakula dan sadewa
 
-(gambar)
+![soal3-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/41b294fb-90c7-443d-8af9-28a79e2339bc)
+![soal3-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/3df0bd0b-0fbd-4d48-ab8b-aac8574e715d)
 
 ## Soal No.4
 Kemudian, karena terdapat beberapa web yang harus di-deploy, buatlah subdomain parikesit.abimanyu.yyy.com yang diatur DNS-nya di Yudhistira dan mengarah ke Abimanyu.
@@ -224,7 +226,8 @@ service bind9 restart
 ### Pembuktian pada Client (Nakula dan Sadewa)
 `ping parikesit.abimanyu.b09.com -c 5` pada nakula dan sadewa
 
-(gambar)
+![soal4-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/61c00552-29e9-4a97-92cf-b10d56bf266f)
+![soal4-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/36bb9f14-b393-4595-a5bd-88a8816a1568)
 
 ## Soal No.5 
 Buat juga reverse domain untuk domain utama. (Abimanyu saja yang direverse)
@@ -266,7 +269,8 @@ nameserver 10.13.1.2 # IP Yudhistira
 host -t PTR 10.13.1.2
 ```
 
-(gambar)
+![soal5-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/f32abb53-606d-4906-9629-1ce288d2d93f)
+![soal5-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/6947c377-5a57-498f-982f-21f2eb041b1d)
 
 ## Soal No.6
 Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
@@ -311,7 +315,8 @@ nameserver 10.13.2.2 ; IP Werkudara
 ### Pembuktian
 `ping arjuna.b09.com -c 5` pada client
 
-(gambar)
+![soal6-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/46a1206d-022d-4935-a7fd-4c1b78c4eeee)
+![soal6-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/e2c95faa-db8a-44cf-81a9-8ec343103ebc)
 
 ## Soal No.7
 Seperti yang kita tahu karena banyak sekali informasi yang harus diterima, buatlah subdomain khusus untuk perang yaitu baratayuda.abimanyu.yyy.com dengan alias www.baratayuda.abimanyu.yyy.com yang didelegasikan dari Yudhistira ke Werkudara dengan IP menuju ke Abimanyu dalam folder Baratayuda.
@@ -370,7 +375,8 @@ service bind9 restart
 ### Pembuktian pada Client (Nakula dan Sadewa)
 `ping baratayuda.abimanyu.b09.com -c 5` pada nakula dan sadewa
 
-(gambar)
+![soal7-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/47aebdb8-3e73-46fe-b49b-4afd73740b53)
+![soal7-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/9d8366e6-b59a-4378-bb6a-bbd50d2b2772)
 
 ## Soal No.8
 Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu
@@ -386,7 +392,8 @@ service bind9 restart
 ### Pembuktian pada Client (Nakula dan Sadewa)
 `ping rjp.baratayuda.abimanyu.b09.com -c 5` pada nakula dan sadewa
 
-(gambar)
+![soal8-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/420cdbea-e8a0-4575-8481-02deeee234e4)
+![soal8-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/a6c699f2-a7bb-40da-abca-df68bc2725b3)
 
 ## Soal No.9
 Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker (yang juga menggunakan nginx sebagai webserver) yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.
@@ -582,7 +589,7 @@ apt-get install lynx
 ### Pembuktian
 `lynx 10.13.3.5` pada client
 
-(gambar)
+![soal9](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/7345e86d-d91a-4f8f-bcdf-03c37ceaa5ad)
 
 `lynx 10.13.3.4` pada client
 

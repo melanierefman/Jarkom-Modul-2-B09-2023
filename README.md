@@ -130,9 +130,7 @@ echo nameserver 192.168.122.1 > /etc/resolv.conf
 ## Soal No.2
 Buatlah website utama pada node arjuna dengan akses ke arjuna.yyy.com dengan alias www.arjuna.yyy.com dengan yyy merupakan kode kelompok.
 
-### Setting Domain Yudhistira
-
-#### Install Bind
+### Install Bind
 ```
 apt-get update
 apt-get install bind9 -y
@@ -165,7 +163,7 @@ www IN CNAME arjuna.b09.com.
 service bind9 restart
 ```
 
-#### Setting Nameserver pada Client (Nakula dan Sadewa)
+### Setting Nameserver pada Client (Nakula dan Sadewa)
 ```
 nano /etc/resolv.conf
 nameserver 10.13.1.2 ; IP Yudhistira
@@ -178,10 +176,10 @@ ping arjuna.b09.com -c 5
 
 (gambar)
 
-### Soal No.3
+## Soal No.3
 Dengan cara yang sama seperti soal nomor 2, buatlah website utama dengan akses ke abimanyu.yyy.com dan alias www.abimanyu.yyy.com.
 
-#### Setting Domain di Yudhistira
+### Setting Domain di Yudhistira
 ```
 nano /etc/bind/named.conf.local
 zone "abimanyu.b09.com" {
@@ -206,7 +204,7 @@ www IN CNAME abimayu.b09.com.
 service bind9 restart
 ```
 
-#### Pembuktian pada Client (Nakula dan Sadewa)
+### Pembuktian pada Client (Nakula dan Sadewa)
 `ping  abimanyu.b09.com -c 5` pada nakula dan sadewa
 
 (gambar)
@@ -223,7 +221,7 @@ parikesit IN A 10.13.3.4 ; IP Abimanyu
 service bind9 restart
 ```
 
-#### Pembuktian pada Client (Nakula dan Sadewa)
+### Pembuktian pada Client (Nakula dan Sadewa)
 `ping parikesit.abimanyu.b09.com -c 5` pada nakula dan sadewa
 
 (gambar)
@@ -256,7 +254,7 @@ nano /etc/bind/prak2/1.13.10.in-addr.arpa
 service bind9 restart
 ```
 
-#### Pembuktian pada Client (Nakula dan Sadewa)
+### Pembuktian pada Client (Nakula dan Sadewa)
 ```
 apt-get update
 
@@ -273,8 +271,7 @@ host -t PTR 10.13.1.2
 ## Soal No.6
 Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
 
-### Konfigurasi Werkudara sebagai DNS Slave
-#### Setting di Yudhistira
+### Setting di Yudhistira
 ```
 nano /etc/bind/named.conf.local
 zone "arjuna.b09.com" {
@@ -288,7 +285,7 @@ zone "arjuna.b09.com" {
 service bind9 restart
 ```
 
-#### Setting di Werkudara
+### Setting di Werkudara
 ```
 apt-get update
 
@@ -304,7 +301,7 @@ zone "arjuna.b09.com" {
 service bind9 restart
 ```
 
-#### Setting di Client (Nakula dan Sadewa)
+### Setting di Client (Nakula dan Sadewa)
 ```
 nano /etc/resolv.conf
 nameserver 10.13.1.2 ; IP Yudhistira
@@ -317,3 +314,454 @@ nameserver 10.13.2.2 ; IP Werkudara
 (gambar)
 
 ## Soal No.7
+Seperti yang kita tahu karena banyak sekali informasi yang harus diterima, buatlah subdomain khusus untuk perang yaitu baratayuda.abimanyu.yyy.com dengan alias www.baratayuda.abimanyu.yyy.com yang didelegasikan dari Yudhistira ke Werkudara dengan IP menuju ke Abimanyu dalam folder Baratayuda.
+
+### Setting di Yudhistira
+```
+nano /etc/bind/prak2/abimanyu.b09.com
+tambahkan
+ns1 	IN  	A  	10.13.2.2 ; IP Werkudara
+baratayuda IN   	NS  ns1
+
+nano /etc/bind/named.conf.options
+//dnssec-validation auto;
+allow-query{any;};
+
+nano /etc/bind/named.conf.local
+zone "abimanyu.b09.com" {
+	type master;
+	file "/etc/bind/prak2/abimanyu.b09.com";
+	allow-transfer { 10.13.2.2; };
+};
+
+service bind9 restart
+```
+
+### Setting di Werkudara
+```
+nano /etc/bind/named.conf.options
+//dnssec-validation auto;
+allow-query{any;};
+
+nano /etc/bind/named.conf.local
+zone "baratayuda.abimanyu.b09.com" {
+    type master;
+    file "/etc/bind/baratayuda/baratayuda.abimanyu.b09.com";
+};
+
+mkdir /etc/bind/baratayuda
+
+cp /etc/bind/db.local /etc/bind/baratayuda/baratayuda.abimanyu.b09.com
+
+nano /etc/bind/baratayuda/baratayuda.abimanyu.b09.com
+@ IN SOA baratayuda.abimanyu.b09.com. root.baratayuda.abimanyu.b09.com. (
+    2023101001 ; serial
+    604800     ; refresh
+    86400      ; retry
+    2419200    ; expire
+    604800 )   ; minimum TTL
+; Name server
+@ IN NS baratayuda.abimanyu.b09.com.
+@ IN A 10.13.2.2 ; IP Werkudara
+
+service bind9 restart
+```
+
+### Pembuktian pada Client (Nakula dan Sadewa)
+`ping baratayuda.abimanyu.b09.com -c 5` pada nakula dan sadewa
+
+(gambar)
+
+## Soal No.8
+Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu
+
+### Setting di Werkudara
+```
+nano /etc/bind/baratayuda/baratayuda.abimanyu.b09.com
+rjp IN A 10.13.2.2 ; IP Werkudara
+
+service bind9 restart
+```
+
+### Pembuktian pada Client (Nakula dan Sadewa)
+`ping rjp.baratayuda.abimanyu.b09.com -c 5` pada nakula dan sadewa
+
+(gambar)
+
+## Soal No.9
+Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker (yang juga menggunakan nginx sebagai webserver) yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.
+
+### Setting di Arjuna sebagai Load Balancer
+```
+apt-get update
+apt-get install nginx
+
+service nginx restart
+service nginx status
+
+nano /etc/nginx/sites-available/lb-prak2
+upstream myweb {
+	server 10.13.3.3;
+	server 10.13.3.4;
+	server 10.13.3.5;
+}
+
+server {
+	listen 80;
+	server_name arjuna.a09.com;
+
+	location / {
+	proxy_pass http://myweb:8000/;
+	}
+}
+
+ln -s /etc/nginx/sites-available/lb-prak2 /etc/nginx/sites-enabled
+```
+
+### Setting di Prabukusuma sebagai Worker
+```
+apt-get update
+apt-get install nginx php php-fpm -y
+
+php -v
+
+mkdir /var/www/prak2
+
+nano /var/www/prak2/index.php
+<?php
+echo "Welcome to Prabukusuma";
+?>
+
+nano /etc/nginx/sites-available/prak2
+server {
+	listen 80;
+	root /var/www/prak2;
+
+	index index.php index.html index.htm;
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+	
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	error_log /var/log/nginx/prak2_error.log;
+	access_log /var/log/nginx/prak2_access.log;
+}
+
+ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
+
+rm -f /etc/nginx/sites-enabled/default
+
+service php7.0-fpm start
+service nginx reload
+service nginx restart
+
+nginx -t
+
+service nginx restart
+```
+
+### Setting di Abimanyu sebagai Worker
+```
+apt-get update
+apt-get install nginx php php-fpm -y
+
+php -v
+
+mkdir /var/www/prak2
+
+nano /var/www/prak2/index.php
+<?php
+echo "Welcome to Abimanyu";
+?>
+
+nano /etc/nginx/sites-available/prak2
+server {
+	listen 80;
+	root /var/www/prak2;
+
+	index index.php index.html index.htm;
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+	
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	error_log /var/log/nginx/prak2_error.log;
+	access_log /var/log/nginx/prak2_access.log;
+}
+
+ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
+
+rm -f /etc/nginx/sites-enabled/default
+
+service php7.0-fpm start
+service nginx reload
+service nginx restart
+
+nginx -t
+
+service nginx restart
+```
+
+### Setting di Wisanggeni sebagai Worker
+```
+apt-get update
+apt-get install nginx php php-fpm -y
+
+php -v
+
+mkdir /var/www/prak2
+
+nano /var/www/prak2/index.php
+<?php
+echo "Welcome to Wisanggeni";
+?>
+
+nano /etc/nginx/sites-available/prak2
+server {
+	listen 80;
+	root /var/www/prak2;
+
+	index index.php index.html index.htm;
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+	
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	error_log /var/log/nginx/prak2_error.log;
+	access_log /var/log/nginx/prak2_access.log;
+}
+
+ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
+
+rm -f /etc/nginx/sites-enabled/default
+
+service php7.0-fpm start
+service nginx reload
+service nginx restart
+
+nginx -t
+
+service nginx restart
+```
+### Setting di Client (Nakula dan Sadewa)
+```
+apt-get update
+apt-get install lynx
+```
+
+### Pembuktian
+`lynx 10.13.3.5` pada client
+
+(gambar)
+
+`lynx 10.13.3.4` pada client
+
+(gambar)
+
+`lynx 10.13.3.3` pada client
+
+(gambar)
+
+## Soal No.10
+Kemudian gunakan algoritma Round Robin untuk Load Balancer pada Arjuna. Gunakan server_name pada soal nomor 1. Untuk melakukan pengecekan akses alamat web tersebut kemudian pastikan worker yang digunakan untuk menangani permintaan akan berganti ganti secara acak. Untuk webserver di masing-masing worker wajib berjalan di port 8001-8003. Contoh
+    - Prabakusuma:8001
+    - Abimanyu:8002
+    - Wisanggeni:8003
+
+### Setting di Arjuna sebagai Load Balancer
+```
+nano /etc/nginx/sites-available/lb-prak2
+upstream myweb {
+	server 10.13.3.3:8003;
+	server 10.13.3.4:8002;
+	server 10.13.3.5:8001;
+}
+
+server {
+	listen 80;
+	server_name arjuna.a09.com;
+
+	location / {
+	proxy_pass http://myweb/;
+	}
+}
+
+ln -s /etc/nginx/sites-available/lb-prak2 /etc/nginx/sites-enabled
+```
+
+### Setting di Prabukusuma sebagai Worker
+```
+nano /etc/nginx/sites-available/prak2
+server {
+	listen 8001;
+	root /var/www/prak2;
+
+	index index.php index.html index.htm;
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	error_log /var/log/nginx/prak2_error.log;
+	access_log /var/log/nginx/prak2_access.log;
+}
+
+ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
+
+rm -f /etc/nginx/sites-enabled/default
+
+service php7.0-fpm start
+service nginx reload
+service nginx restart
+
+nginx -t
+
+service nginx restart
+```
+
+### Setting di Abimanyu sebagai Worker
+```
+nano /etc/nginx/sites-available/prak2
+server {
+	listen 8002;
+	root /var/www/prak2;
+
+	index index.php index.html index.htm;
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	error_log /var/log/nginx/prak2_error.log;
+	access_log /var/log/nginx/prak2_access.log;
+}
+
+ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
+
+rm -f /etc/nginx/sites-enabled/default
+
+service php7.0-fpm start
+service nginx reload
+service nginx restart
+
+nginx -t
+
+service nginx restart
+```
+
+### Setting di Wisanggeni sebagai Worker
+```
+nano /etc/nginx/sites-available/prak2
+server {
+	listen 8003;
+	root /var/www/prak2;
+
+	index index.php index.html index.htm;
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+
+	error_log /var/log/nginx/prak2_error.log;
+	access_log /var/log/nginx/prak2_access.log;
+}
+
+ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
+
+rm -f /etc/nginx/sites-enabled/default
+
+service php7.0-fpm start
+service nginx reload
+service nginx restart
+
+nginx -t
+
+service nginx restart
+```
+### Pembuktian
+`lynx 10.13.3.5:8001` pada client
+
+(gambar)
+
+`lynx 10.13.3.4:8002` pada client
+
+(gambar)
+
+`lynx 10.13.3.3:8003` pada client
+
+(gambar)
+
+## Soal No.11
+Selain menggunakan Nginx, lakukan konfigurasi Apache Web Server pada worker Abimanyu dengan web server www.abimanyu.yyy.com. Pertama dibutuhkan web server dengan DocumentRoot pada /var/www/abimanyu.yyy
+
+### Setting di Abimanyu
+```
+```
+
+### Pembuktian
+`lynx abimanyu.b09.com` pada client
+
+(gambar)

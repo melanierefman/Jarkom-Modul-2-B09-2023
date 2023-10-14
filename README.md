@@ -8,27 +8,173 @@ Anggota Kelompok B09:
 
 ----
 ## Soal No.1
-User melakukan berbagai aktivitas dengan menggunakan protokol FTP. Salah satunya
-adalah mengunggah suatu file.
-- a. Berapakah sequence number (raw) pada packet yang menunjukkan aktivitas tersebut?
-- b. Berapakah acknowledge number (raw) pada packet yang menunjukkan aktivitas tersebut?
-- c. Berapakah sequence number (raw) pada packet yang menunjukkan response dari aktivitas tersebut?
-- d. Berapakah acknowledge number (raw) pada packet yang menunjukkan response dari aktivitas tersebut?
-### Penyelesaian
-a.
-- Pertama mendownload capture file dari soal
-- Mendownload capture file dan membukanya pada wireshark
-- Kemudian filter menggunakan `ftp`
-  ![image](https://github.com/melanierefman/Jarkom-Modul-1-B09-2023/assets/87845735/bb6dcfa1-39d4-4053-a20a-5a99036ea7f3)
-- Lalu setelah keluar packet yang menggunakan protocol ftp, langkah selanjutnya adalah mencari packet yang terdapat request `STOR` yang dimana request ini artinya menggungah sesuatu.
-  ![image](https://github.com/melanierefman/Jarkom-Modul-1-B09-2023/assets/87845735/58852693-005c-445a-9107-86b2dc3a3c2e)
-- Setelah mendapatkan lalu membuka detail `TCP` atau `Transmission Control Protocol` dari packet ini.
-![image](https://github.com/melanierefman/Jarkom-Modul-1-B09-2023/assets/87845735/234ce126-1fa0-490e-b17f-3e15289d48ea)
-- Setelah itu kita bisa menemukan Sequence Number (raw) dari packet request `STOR` ini.
-- Jawabannya : 258040667
-  
-b.
-- Dengan cara yang sama pada bagian a, kita akan menemukan Acknowledeg number (raw) dari packet ini.
-- Jawabannya : 1044861039
-  
-c.
+Yudhistira akan digunakan sebagai DNS Master, Werkudara sebagai DNS Slave, Arjuna merupakan Load Balancer yang terdiri dari beberapa Web Server yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Buatlah topologi dengan pembagian sebagai berikut. 
+
+### Topologi 1
+
+(gambar)
+
+### Konfigurasi Node
+Konfigurasi sesuai modul GNS. Menggunakan IP Prefix 10.13 -> IP Kelompok B09.
+
+#### Konfigurasi Pandudewanata
+```
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet static
+	address 10.13.1.1
+	netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet static
+	address 10.13.2.1
+	netmask 255.255.255.0
+
+auto eth3
+iface eth3 inet static
+	address 10.13.3.1
+	netmask 255.255.255.0
+```
+
+#### Konfigurasi Yudhistira
+```auto eth0
+iface eth0 inet static
+	address 10.13.1.2
+	netmask 255.255.255.0
+	gateway 10.13.1.1
+```
+
+#### Konfigurasi Nakula
+```
+auto eth0
+iface eth0 inet static
+	address 10.13.1.3
+	netmask 255.255.255.0
+	gateway 10.13.1.1
+```
+
+#### Konfigurasi Werkudara
+```
+auto eth0
+iface eth0 inet static
+	address 10.13.2.2
+	netmask 255.255.255.0
+	gateway 10.13.2.1
+```
+
+#### Konfigurasi Sadewa
+```
+auto eth0
+iface eth0 inet static
+	address 10.13.2.3
+	netmask 255.255.255.0
+	gateway 10.13.2.1
+```
+
+#### Konfigurasi Arjuna
+```
+auto eth0
+iface eth0 inet static
+	address 10.13.3.2
+	netmask 255.255.255.0
+	gateway 10.13.3.1
+```
+
+#### Konfigurasi Wisanggeni
+````
+auto eth0
+iface eth0 inet static
+	address 10.13.3.3
+	netmask 255.255.255.0
+	gateway 10.13.3.1
+````
+
+#### Konfigurasi Abimanyu
+````
+auto eth0
+iface eth0 inet static
+	address 10.13.3.4
+	netmask 255.255.255.0
+	gateway 10.13.3.1
+````
+
+#### Konfigurasi Prabukusuma
+```
+auto eth0
+iface eth0 inet static
+	address 10.13.3.5
+	netmask 255.255.255.0
+	gateway 10.13.3.1
+```
+
+### Setting di Web Console
+
+#### Pandudewanata
+```
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.13.0.0/16
+cat /etc/resolv.conf
+```
+
+#### Node Lain
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+
+### Pembuktian
+`ping google.com` pada node lain
+
+(gambar)
+
+## Soal No.2
+Buatlah website utama pada node arjuna dengan akses ke arjuna.yyy.com dengan alias www.arjuna.yyy.com dengan yyy merupakan kode kelompok.
+
+### Setting Domain Yudhistira
+
+#### Install Bind
+```
+apt-get update
+apt-get install bind9 -y
+```
+
+### Setting Domain
+```
+nano /etc/bind/named.conf.local
+zone "arjuna.b09.com" {
+	type master;
+	file "/etc/bind/prak2/arjuna.b09.com";
+};
+
+mkdir /etc/bind/prak2
+
+cp /etc/bind/db.local /etc/bind/prak2/arjuna.b09.com
+
+nano /etc/bind/prak2/arjuna.b09.com
+@ IN SOA arjuna.b09.com. root.arjuna.b09.com. (
+    2023090201 ; serial
+    604800 ; refresh
+    86400 ; retry
+    2419200 ; expire
+    604800 ) ; minimum ttl
+; Name server
+@ IN NS arjuna.b09.com.
+@ IN A 10.13.3.2 ; IP Arjuna
+www IN CNAME arjuna.b09.com.
+
+service bind9 restart
+```
+
+#### Setting Nameserver pada Client (Nakula dan Sadewa)
+```
+nano /etc/resolv.conf
+  nameserver 10.13.1.2 ; IP Yudhistira
+
+ping arjuna.b09.com -c 5
+```
+
+### Pembuktian
+`ping ajuna.b09.com -c 5` pada nakula dan sadewa
+
+(gambar)
+

@@ -138,7 +138,7 @@ apt-get update
 apt-get install bind9 -y
 ```
 
-### Setting Domain
+### Setting Domain di Yudhistira
 ```
 nano /etc/bind/named.conf.local
 zone "arjuna.b09.com" {
@@ -168,7 +168,7 @@ service bind9 restart
 #### Setting Nameserver pada Client (Nakula dan Sadewa)
 ```
 nano /etc/resolv.conf
-  nameserver 10.13.1.2 ; IP Yudhistira
+nameserver 10.13.1.2 ; IP Yudhistira
 
 ping arjuna.b09.com -c 5
 ```
@@ -178,3 +178,142 @@ ping arjuna.b09.com -c 5
 
 (gambar)
 
+### Soal No.3
+Dengan cara yang sama seperti soal nomor 2, buatlah website utama dengan akses ke abimanyu.yyy.com dan alias www.abimanyu.yyy.com.
+
+#### Setting Domain di Yudhistira
+```
+nano /etc/bind/named.conf.local
+zone "abimanyu.b09.com" {
+	type master;
+	file "/etc/bind/prak2/abimanyu.b09.com";
+};
+
+cp /etc/bind/db.local /etc/bind/prak2/abimanyu.b09.com
+
+nano /etc/bind/prak2/abimanyu.b09.com
+@ IN SOA abimayu.b09.com. root.abimayu.b09.com. (
+    2023101001 ; serial
+    604800 ; refresh
+    86400 ; retry
+    2419200 ; expire
+    604800 ) ; minimum ttl
+; Name server
+@ IN NS abimamyu.b09.com.
+@ IN A 10.13.3.4 ; IP Abimayu
+www IN CNAME abimayu.b09.com.
+
+service bind9 restart
+```
+
+#### Pembuktian pada Client (Nakula dan Sadewa)
+`ping  abimanyu.b09.com -c 5` pada nakula dan sadewa
+
+(gambar)
+
+## Soal No.4
+Kemudian, karena terdapat beberapa web yang harus di-deploy, buatlah subdomain parikesit.abimanyu.yyy.com yang diatur DNS-nya di Yudhistira dan mengarah ke Abimanyu.
+
+### Membuat Subdomain di Yudhistira
+```
+nano /etc/bind/prak2/abimanyu.b09.com
+tambahkan
+parikesit IN A 10.13.3.4 ; IP Abimanyu
+
+service bind9 restart
+```
+
+#### Pembuktian pada Client (Nakula dan Sadewa)
+`ping parikesit.abimanyu.b09.com -c 5` pada nakula dan sadewa
+
+(gambar)
+
+## Soal No.5 
+Buat juga reverse domain untuk domain utama. (Abimanyu saja yang direverse)
+
+### Reverse Domain di Yudhistira
+```
+nano /etc/bind/named.conf.local
+
+zone "1.13.10.in-addr.arpa" {
+    type master;
+    file "/etc/bind/prak2/1.13.10.in-addr.arpa";
+};
+
+cp /etc/bind/db.local /etc/bind/prak2/1.13.10.in-addr.arpa
+
+nano /etc/bind/prak2/1.13.10.in-addr.arpa
+@ IN SOA abimayu.b09.com. root.abimayu.b09.com. (
+    2023101001 ; serial
+    604800 ; refresh
+    86400 ; retry
+    2419200 ; expire
+    604800 ) ; minimum ttl
+;
+1.13.10.in-addr.arpa. IN NS abimamyu.b09.com.
+2 IN PTR abimamyu.b09.com.
+
+service bind9 restart
+```
+
+#### Pembuktian pada Client (Nakula dan Sadewa)
+```
+apt-get update
+
+apt-get install dnsutils
+
+nano /etc/resolv.conf
+nameserver 10.13.1.2 # IP Yudhistira
+
+host -t PTR 10.13.1.2
+```
+
+(gambar)
+
+## Soal No.6
+Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
+
+### Konfigurasi Werkudara sebagai DNS Slave
+#### Setting di Yudhistira
+```
+nano /etc/bind/named.conf.local
+zone "arjuna.b09.com" {
+    type master;
+    notify yes;
+    also-notify { 10.13.2.2; };
+    allow-transfer { 10.13.2.2; };
+    file "/etc/bind/prak2/arjuna.b09.com";
+};
+
+service bind9 restart
+```
+
+#### Setting di Werkudara
+```
+apt-get update
+
+apt-get install bind9 -y
+
+nano /etc/bind/named.conf.local
+zone "arjuna.b09.com" {
+    type slave;
+    masters { 10.13.1.2; }; // Masukan IP Yudhistira tanpa tanda petik
+    file "/var/lib/bind/arjuna.b09.com";
+};
+
+service bind9 restart
+```
+
+#### Setting di Client (Nakula dan Sadewa)
+```
+nano /etc/resolv.conf
+nameserver 10.13.1.2 ; IP Yudhistira
+nameserver 10.13.2.2 ; IP Werkudara
+```
+
+### Pembuktian
+`ping arjuna.b09.com -c 5` pada client
+
+(gambar)
+
+## Soal No.7

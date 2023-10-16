@@ -425,7 +425,7 @@ server {
 ln -s /etc/nginx/sites-available/lb-prak2 /etc/nginx/sites-enabled
 ```
 
-### Setting di Prabukusuma sebagai Worker
+### Setting di Worker (Prabukusuma, Abimanyu, Wisanggeni)
 ```
 apt-get update
 apt-get install nginx php php-fpm -y
@@ -434,12 +434,11 @@ php -v
 
 mkdir /var/www/prak2
 
-nano /var/www/prak2/index.php
-<?php
-echo "Welcome to Prabukusuma";
-?>
+apt-get install git -y
 
-nano /etc/nginx/sites-available/prak2
+git -c http.sslVerify=false clone https://github.com/melanierefman/jarkom-prak2-arjuna /var/www/prak2
+
+nano > /etc/nginx/sites-available/prak2
 server {
 	listen 80;
 	root /var/www/prak2;
@@ -473,112 +472,6 @@ service nginx reload
 service nginx restart
 
 nginx -t
-
-service nginx restart
-```
-
-### Setting di Abimanyu sebagai Worker
-```
-apt-get update
-apt-get install nginx php php-fpm -y
-
-php -v
-
-mkdir /var/www/prak2
-
-nano /var/www/prak2/index.php
-<?php
-echo "Welcome to Abimanyu";
-?>
-
-nano /etc/nginx/sites-available/prak2
-server {
-	listen 80;
-	root /var/www/prak2;
-
-	index index.php index.html index.htm;
-	server_name _;
-
-	location / {
-		try_files $uri $uri/ /index.php?$query_string;
-	}
-	
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-	}
-
-	location ~ /\.ht {
-		deny all;
-	}
-
-	error_log /var/log/nginx/prak2_error.log;
-	access_log /var/log/nginx/prak2_access.log;
-}
-
-ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
-
-rm -f /etc/nginx/sites-enabled/default
-
-service php7.0-fpm start
-service nginx reload
-service nginx restart
-
-nginx -t
-
-service nginx restart
-```
-
-### Setting di Wisanggeni sebagai Worker
-```
-apt-get update
-apt-get install nginx php php-fpm -y
-
-php -v
-
-mkdir /var/www/prak2
-
-nano /var/www/prak2/index.php
-<?php
-echo "Welcome to Wisanggeni";
-?>
-
-nano /etc/nginx/sites-available/prak2
-server {
-	listen 80;
-	root /var/www/prak2;
-
-	index index.php index.html index.htm;
-	server_name _;
-
-	location / {
-		try_files $uri $uri/ /index.php?$query_string;
-	}
-	
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
-	}
-
-	location ~ /\.ht {
-		deny all;
-	}
-
-	error_log /var/log/nginx/prak2_error.log;
-	access_log /var/log/nginx/prak2_access.log;
-}
-
-ln -s /etc/nginx/sites-available/prak2 /etc/nginx/sites-enabled
-
-rm -f /etc/nginx/sites-enabled/default
-
-service php7.0-fpm start
-service nginx reload
-service nginx restart
-
-nginx -t
-
-service nginx restart
 ```
 ### Setting di Client (Nakula dan Sadewa)
 ```
@@ -589,15 +482,15 @@ apt-get install lynx
 ### Pembuktian
 `lynx 10.13.3.5` pada client
 
-![soal9](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/7345e86d-d91a-4f8f-bcdf-03c37ceaa5ad)
+![soal9-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/dfa99ef1-3c66-4e33-ace5-2a6e602e247b)
 
 `lynx 10.13.3.4` pada client
 
-(gambar)
+![soal9-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/4e402666-510b-4c45-903a-4e91e4b5d98c)
 
 `lynx 10.13.3.3` pada client
 
-(gambar)
+![soal9-3](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/1fdd1c19-7b38-4f03-bef9-a6d1a44b01cc)
 
 ## Soal No.10
 Kemudian gunakan algoritma Round Robin untuk Load Balancer pada Arjuna. Gunakan server_name pada soal nomor 1. Untuk melakukan pengecekan akses alamat web tersebut kemudian pastikan worker yang digunakan untuk menangani permintaan akan berganti ganti secara acak. Untuk webserver di masing-masing worker wajib berjalan di port 8001-8003. Contoh
@@ -751,24 +644,55 @@ service nginx restart
 ### Pembuktian
 `lynx 10.13.3.5:8001` pada client
 
-(gambar)
+![soal10-1](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/a58dee73-7385-439d-9a27-67614ad5baad)
 
 `lynx 10.13.3.4:8002` pada client
 
-(gambar)
+![soal10-2](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/7d4cbac1-daa9-45f6-9357-cca0d24308a4)
 
 `lynx 10.13.3.3:8003` pada client
 
-(gambar)
+![soal10-3](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/17666ba2-0283-4a4d-b57d-7fb05383484b)
 
 ## Soal No.11
 Selain menggunakan Nginx, lakukan konfigurasi Apache Web Server pada worker Abimanyu dengan web server www.abimanyu.yyy.com. Pertama dibutuhkan web server dengan DocumentRoot pada /var/www/abimanyu.yyy
 
 ### Setting di Abimanyu
 ```
+apt-get install apache2 -y
+
+service apache2 start
+
+apt-get install libapache2-mod-php7.0 -y
+
+apt-get install git -y
+
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/abimanyu.b09.com.conf
+
+rm /etc/apache2/sites-available/000-default.conf
+
+echo '
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    ServerName abimanyu.b09.com
+    ServerAlias www.abimanyu.b09.com
+    DocumentRoot /var/www/abimanyu.b09
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/abimanyu.b09.com.conf
+
+mkdir /var/www/abimanyu.b09
+
+git -c http.sslVerify=false clone https://github.com/melanierefman/jarkom-prak2-abimanyu /var/www/abimanyu.b09
+
+a2ensite abimanyu.b09.com
+
+service apache2 restart
 ```
 
 ### Pembuktian
 `lynx abimanyu.b09.com` pada client
 
-(gambar)
+![soal11](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/e5b9ab08-ec61-48cb-a4cc-f93d1f19448f)
+

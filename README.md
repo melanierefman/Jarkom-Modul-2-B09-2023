@@ -696,3 +696,6 @@ service apache2 restart
 
 ![soal11](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87106838/e5b9ab08-ec61-48cb-a4cc-f93d1f19448f)
 
+## Soal No.12
+Setelah itu ubahlah agar url www.abimanyu.yyy.com/index.php/home menjadi www.abimanyu.yyy.com/home.
+### Setting di Abimanyu

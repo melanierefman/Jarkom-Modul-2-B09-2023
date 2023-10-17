@@ -1,4 +1,4 @@
-# Praktikum Jarkom Modul 2 Kelompok B09
+# Praktikum Jarkom Modul 1 Kelompok B09
 
 Anggota Kelompok B09:
 | Nama | NRP |
@@ -698,4 +698,523 @@ service apache2 restart
 
 ## Soal No.12
 Setelah itu ubahlah agar url www.abimanyu.yyy.com/index.php/home menjadi www.abimanyu.yyy.com/home.
-### Setting di Abimanyu
+### Jawab
+pada soal ini, kita menggunakan system rewrite menggunakan
+`a2enmod rewrite`
+kemudian kita lakukan restart pada apache2 dengan
+`service apache2 restart`
+lalu membuat file .htaccess
+`touch /var/www/abimanyu.b07/.htaccess`
+
+lalu di dalam file `.htaccess` tulis config berikut :
+```
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+```
+
+kemudian masukkan beberapa konfigurasi pada `/etc/apache2/sites-available/abimanyu.b09.com.conf` seperti berikut :
+```
+<Directory /var/www/abimanyu.b09>
+                Options Indexes FollowSymLinks
+                AllowOverride All
+                Require all granted
+        </Directory>
+```
+lalu kita bisa akses di :
+```
+lynx www.abimanyu.yyy.com/home
+```
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/a5813626-92f8-4f36-a630-381ef7c29163)
+
+## Soal No.13
+Selain itu, pada subdomain www.parikesit.abimanyu.yyy.com, DocumentRoot disimpan pada /var/www/parikesit.abimanyu.yyy
+### Jawab
+isi dari config soal13.sh
+```
+touch /etc/apache2/sites-available/parikesit.abimanyu.b09.com.conf
+echo '
+<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/parikesit.abimanyu.b09
+        ServerName parikesit.abimanyu.b09.com
+        ServerAlias www.parikesit.abimanyu.b09.com
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+</VirtualHost>' > /etc/apache2/sites-available/parikesit.abimanyu.b09.com.conf
+a2ensite parikesit.abimanyu.b09.com
+service apache2 restart
+mkdir /var/www/parikesit.abimanyu.b09
+cp -v -r /root/parikesit.abimanyu.yyy.com/* /var/www/parikesit.abimanyu.b09/
+```
+## Pembuktian berhasil
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/5cff5d69-a8aa-4bdd-8d5c-f354b776303b)
+
+## Soal No.14
+Pada subdomain tersebut folder /public hanya dapat melakukan directory listing sedangkan pada folder /secret tidak dapat diakses (403 Forbidden).
+### Jawab
+kita membuat folder secret di dalam `/var/www/parikesit.abimanyu.b09` dengan menggunakan command disamping dan membuat file htmlnya karena file tidak ada atau tidak disediakan.
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/8c389532-fbeb-4563-a8ed-f21a5e06a35a)
+kemudian kita melakukan edit pada file konfigurasi di `/etc/apache2/sites-available/parikesit.abimanyu.b09.com.conf` dengan menambahkan sebagai berikut :
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/3f2b1d90-6552-4018-aa74-0805a3627337)
+
+## Pembuktian
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/6dfb6a94-765a-4405-b1e0-467c1254c654)
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/8f2a2e8c-f62b-405f-a773-9a0243545de5)
+
+## Soal No.15
+Buatlah kustomisasi halaman error pada folder /error untuk mengganti error kode pada Apache. Error kode yang perlu diganti adalah 404 Not Found dan 403 Forbidden.
+### Jawab
+kita config ke dalam `nano /etc/apache2/apache2.conf`
+lalu kita masukkan config error seperti ini :
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/63c66fc5-de46-45db-a10f-d5fa15c74676)
+
+## Pembuktian
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/f73cf42d-b82d-4507-8018-571f4dae34e2)
+
+## Soal No.16
+Buatlah suatu konfigurasi virtual host agar file asset www.parikesit.abimanyu.yyy.com/public/js menjadi www.parikesit.abimanyu.yyy.com/js
+### Jawab
+
+pertama2, kita masuk ke :
+```
+nano /etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf
+```
+lalu menambahkan ini :
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/0875c705-3c91-486c-a344-4f9d362cad58)
+
+## Pembuktian
+lalu jalankan lynx parikesit.abimanyu.b09.com/js
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/b90b3929-ee0b-40d2-a9e6-d7720b5702fa)
+
+## Soal No.17
+Agar aman, buatlah konfigurasi agar www.rjp.baratayuda.abimanyu.yyy.com hanya dapat diakses melalui port 14000 dan 14400.
+### Jawab
+```
+touch /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b09.com.conf
+echo '
+<VirtualHost *:14000>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/rjp.baratayuda.abimanyu.b09
+        ServerName rjp.baratayuda.abimanyu.b09.com
+        ServerAlias www.rjp.baratayuda.abimanyu.b09.com
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+<VirtualHost *:14400>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/rjp.baratayuda.abimanyu.b09
+        ServerName rjp.baratayuda.abimanyu.b09.com
+        ServerAlias www.rjp.baratayuda.abimanyu.b09.com
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b09.com.conf
+
+echo '
+# This is the main Apache server configuration file.  It contains the
+# configuration directives that give the server its instructions.
+# See http://httpd.apache.org/docs/2.4/ for detailed information about
+# the directives and /usr/share/doc/apache2/README.Debian about Debian specific
+# hints.
+#
+#
+# Summary of how the Apache 2 configuration works in Debian:
+# The Apache 2 web server configuration in Debian is quite different to
+# upstream's suggested way to configure the web server. This is because Debian's
+# default Apache2 installation attempts to make adding and removing modules,
+# virtual hosts, and extra configuration directives as flexible as possible, in
+# order to make automating the changes and administering the server as easy as
+# possible.
+
+# It is split into several files forming the configuration hierarchy outlined
+# below, all located in the /etc/apache2/ directory:
+#
+#       /etc/apache2/
+#       |-- apache2.conf
+#       |       `--  ports.conf
+#       |-- mods-enabled
+#       |       |-- *.load
+#       |       `-- *.conf
+#       |-- conf-enabled
+#       |       `-- *.conf
+#       `-- sites-enabled
+#               `-- *.conf
+#
+#
+# * apache2.conf is the main configuration file (this file). It puts the pieces
+#   together by including all remaining configuration files when starting up the
+#   web server.
+#
+# * ports.conf is always included from the main configuration file. It is
+#   supposed to determine listening ports for incoming connections which can be
+#   customized anytime.
+#
+# * Configuration files in the mods-enabled/, conf-enabled/ and sites-enabled/
+#   directories contain particular configuration snippets which manage modules,
+#   global configuration fragments, or virtual host configurations,
+#   respectively.
+#
+#   They are activated by symlinking available configuration files from their
+#   respective *-available/ counterparts. These should be managed by using our
+#   helpers a2enmod/a2dismod, a2ensite/a2dissite and a2enconf/a2disconf. See
+#   their respective man pages for detailed information.
+#
+# * The binary is called apache2. Due to the use of environment variables, in
+#   the default configuration, apache2 needs to be started/stopped with
+#   /etc/init.d/apache2 or apache2ctl. Calling /usr/bin/apache2 directly will not
+#   work with the default configuration.
+
+
+# Global configuration
+#
+
+#
+# ServerRoot: The top of the directory tree under which the server
+# configuration, error, and log files are kept.
+#
+# NOTE!  If you intend to place this on an NFS (or otherwise network)
+# mounted filesystem then please read the Mutex documentation (available
+# at <URL:http://httpd.apache.org/docs/2.4/mod/core.html#mutex>);
+# you will save yourself a lot of trouble.
+#
+# Do NOT add a slash at the end of the directory path.
+#
+#ServerRoot "/etc/apache2"
+
+#
+# The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
+#
+#Mutex file:${APACHE_LOCK_DIR} default
+
+#
+# The directory where shm and other runtime files will be stored.
+#
+
+DefaultRuntimeDir ${APACHE_RUN_DIR}
+
+#
+# PidFile: The file in which the server should record its process
+# identification number when it starts.
+# This needs to be set in /etc/apache2/envvars
+#
+PidFile ${APACHE_PID_FILE}
+
+#
+# Timeout: The number of seconds before receives and sends time out.
+#
+Timeout 300
+
+#
+# KeepAlive: Whether or not to allow persistent connections (more than
+# one request per connection). Set to "Off" to deactivate.
+#
+KeepAlive On
+
+#
+# MaxKeepAliveRequests: The maximum number of requests to allow
+# during a persistent connection. Set to 0 to allow an unlimited amount.
+# We recommend you leave this number high, for maximum performance.
+#
+MaxKeepAliveRequests 100
+
+#
+# KeepAliveTimeout: Number of seconds to wait for the next request from the
+# same client on the same connection.
+#
+KeepAliveTimeout 5
+
+
+# These need to be set in /etc/apache2/envvars
+User ${APACHE_RUN_USER}
+Group ${APACHE_RUN_GROUP}
+
+#
+# HostnameLookups: Log the names of clients or just their IP addresses
+# e.g., www.apache.org (on) or 204.62.129.132 (off).
+# The default is off because it be overall better for the net if people
+# had to knowingly turn this feature on, since enabling it means that
+# each client request will result in AT LEAST one lookup request to the
+# nameserver.
+#
+HostnameLookups Off
+
+# ErrorLog: The location of the error log file.
+# If you do not specify an ErrorLog directive within a <VirtualHost>
+# container, error messages relating to that virtual host will be
+# logged here.  If you do define an error logfile for a <VirtualHost>
+# container, that host errors will be logged there and not here.
+#
+ErrorLog ${APACHE_LOG_DIR}/error.log
+
+#
+# LogLevel: Control the severity of messages logged to the error_log.
+# Available values: trace8, ..., trace1, debug, info, notice, warn,
+# error, crit, alert, emerg.
+# It is also possible to configure the log level for particular modules, e.g.
+# "LogLevel info ssl:warn"
+#
+LogLevel warn
+
+# Include module configuration:
+IncludeOptional mods-enabled/*.load
+IncludeOptional mods-enabled/*.conf
+
+# Include list of ports to listen on
+Include ports.conf
+
+
+# Sets the default security model of the Apache2 HTTPD server. It does
+# not allow access to the root filesystem outside of /usr/share and /var/www.
+# The former is used by web applications packaged in Debian,
+# the latter may be used for local directories served by the web server. If
+# your system is serving content from a sub-directory in /srv you must allow
+# access here, or in any related virtual host.
+<Directory />
+        Options FollowSymLinks
+        AllowOverride None
+        Require all denied
+</Directory>
+
+<Directory /usr/share>
+        AllowOverride None
+        Require all granted
+</Directory>
+
+<Directory /var/www/>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+</Directory>
+
+#<Directory /srv/>
+#       Options Indexes FollowSymLinks
+#       AllowOverride None
+#       Require all granted
+#</Directory>
+
+
+
+
+# AccessFileName: The name of the file to look for in each directory
+# for additional configuration directives.  See also the AllowOverride
+# directive.
+#
+AccessFileName .htaccess
+
+#
+# The following lines prevent .htaccess and .htpasswd files from being
+# viewed by Web clients.
+#
+<FilesMatch "^\.ht">
+        Require all denied
+</FilesMatch>
+
+
+#
+# The following directives define some format nicknames for use with
+# a CustomLog directive.
+#
+# These deviate from the Common Log Format definitions in that they use %O
+# (the actual bytes sent including headers) instead of %b (the size of the
+# requested file), because the latter makes it impossible to detect partial
+# requests.
+#
+# Note that the use of %{X-Forwarded-For}i instead of %h is not recommended.
+# Use mod_remoteip instead.
+#
+LogFormat "%v:%p %h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" vhost_combined
+LogFormat "%h %l %u %t \"%r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined
+LogFormat "%h %l %u %t \"%r\" %>s %O" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+
+# Include of directories ignores editors' and dpkg's backup files,
+# see README.Debian for details.
+
+# Include generic snippets of statements
+IncludeOptional conf-enabled/*.conf
+
+# Include the virtual host configurations:
+IncludeOptional sites-enabled/*.conf
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+
+ErrorDocument 404 /error/404.html
+ErrorDocument 403 /error/403.html
+
+listen 14000
+listen 14400' > /etc/apache2/apache2.conf
+
+a2ensite rjp.baratayuda.abimanyu.b09.com
+service apache2 restart
+mkdir /var/www/rjp.baratayuda.abimanyu.b09
+cp -v /root/rjp.baratayuda.abimanyu.yyy.com/* /var/www/rjp.baratayuda.abimanyu.b09/
+```
+## Soal No.18
+Untuk mengaksesnya buatlah autentikasi username berupa “Wayang” dan password “baratayudayyy” dengan yyy merupakan kode kelompok. Letakkan DocumentRoot pada /var/www/rjp.baratayuda.abimanyu.yyy.
+### Jawab
+```
+htpasswd -cb /etc/apache2/.htpasswd Wayang baratayudab09
+# htpasswd -D /etc/apache2/.htpasswd Wayang (untuk menghapus)
+echo '
+<VirtualHost *:14000>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/rjp.baratayuda.abimanyu.b09
+        ServerName rjp.baratayuda.abimanyu.b09.com
+        ServerAlias www.rjp.baratayuda.abimanyu.b09.com
+
+        <Directory /var/www/rjp.baratayuda.abimanyu.b09>
+                AuthType Basic
+                AuthName "Authentication Required"
+                AuthUserFile /etc/apache2/.htpasswd
+                Require valid-user
+        </Directory>
+
+        <Files "password">
+                Order allow,deny
+                Deny from all
+        </Files>
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+<VirtualHost *:14400>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/rjp.baratayuda.abimanyu.b09
+        ServerName rjp.baratayuda.abimanyu.b09.com
+        ServerAlias www.rjp.baratayuda.abimanyu.b09.com
+
+        <Directory /var/www/rjp.baratayuda.abimanyu.b09>
+                AuthType Basic
+                AuthName "Authentication Required"
+                AuthUserFile /etc/apache2/.htpasswd
+                Require valid-user
+        </Directory>
+
+        <Files "password">
+                Order allow,deny
+                Deny from all
+        </Files>
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>' > /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b09.com.conf
+service apache2 restart
+```
+
+## Soal No.19
+Buatlah agar setiap kali mengakses IP dari Abimanyu akan secara otomatis dialihkan ke www.abimanyu.yyy.com (alias)
+### Jawab
+tambahkan config ini ke `nano abimanyu.b07.com.conf` :
+```
+<VirtualHost *:80>
+        ServerName 10.13.3.4
+        Redirect permanent / http://www.abimanyu.b09.com/
+</VirtualHost>
+```
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/935b9f34-1b20-431e-9f37-5da24f3f38fe)
+
+## Outputnya 
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/73494839-daa5-4015-8952-48a441f731b1)
+
+![image](https://github.com/melanierefman/Jarkom-Modul-2-B09-2023/assets/87845735/67f5a9d9-6e0d-465e-af27-02ac66a8b0ac)
+
+## Soal No.20
+Karena website www.parikesit.abimanyu.yyy.com semakin banyak pengunjung dan banyak gambar gambar random, maka ubahlah request gambar yang memiliki substring “abimanyu” akan diarahkan menuju abimanyu.png.
+### Jawab
+```
+a2enmod rewrite
+touch /var/www/parikesit.abimanyu.b09/.htaccess
+
+echo '
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/public/images/(.*)(abimanyu)(.*\.(png|jpg))
+RewriteCond %{REQUEST_URI} !/public/images/abimanyu.png
+RewriteRule abimanyu http://parikesit.abimanyu.b09.com/public/images/abimanyu.png$1 [L,R=301]' > /var/www/parikesit.abimanyu.b09/.htaccess
+
+echo '
+<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/parikesit.abimanyu.b09
+        ServerName parikesit.abimanyu.b09.com
+        ServerAlias www.parikesit.abimanyu.b09.com
+
+        <Directory /var/www/parikesit.abimanyu.b09/public>
+                Options +Indexes
+        </Directory>
+
+        <Directory /var/www/parikesit.abimanyu.b09/secret>
+                Options -Indexes
+        </Directory>
+
+        <Directory /var/www/parikesit.abimanyu.b09/public/js>
+                Options +Indexes
+        </Directory>
+
+	<Directory /var/www/parikesit.abimanyu.b09>
+        	Options +FollowSymLinks -Multiviews
+        	AllowOverride All
+	</Directory>
+
+        Alias "/js" "/var/www/parikesit.abimanyu.b09/public/js"
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+
+</VirtualHost>' > nano /etc/apache2/sites-available/parikesit.abimanyu.b09.com.conf
+
+service apache2 restart
+
+```

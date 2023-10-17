@@ -1,4 +1,4 @@
-# Praktikum Jarkom Modul 1 Kelompok B09
+# Praktikum Jarkom Modul 2 Kelompok B09
 
 Anggota Kelompok B09:
 | Nama | NRP |
